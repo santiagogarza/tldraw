@@ -28,6 +28,7 @@ import { TldrawUiSlider } from '../primitives/TldrawUiSlider'
 import { TldrawUiToolbar, TldrawUiToolbarButton } from '../primitives/TldrawUiToolbar'
 import { StylePanelButtonPicker, StylePanelButtonPickerInline } from './StylePanelButtonPicker'
 import { useStylePanelContext } from './StylePanelContext'
+import { StylePanelCustomColorPicker } from './StylePanelCustomColorPicker'
 import { StylePanelDoubleDropdownPicker } from './StylePanelDoubleDropdownPicker'
 import {
 	StylePanelDropdownPicker,
@@ -41,6 +42,7 @@ export function DefaultStylePanelContent() {
 		<>
 			<StylePanelSection>
 				<StylePanelColorPicker />
+				<StylePanelCustomColorPicker />
 				<StylePanelOpacityPicker />
 			</StylePanelSection>
 			<StylePanelSection>

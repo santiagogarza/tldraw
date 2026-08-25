@@ -1147,6 +1147,140 @@ tldraw? probably.
 	border-bottom: 1px solid var(--tl-color-divider);
 }
 
+/* ------------- Custom color picker ------------- */
+
+.tlui-custom-color-picker__trigger.tlui-button {
+	width: 100%;
+	height: 36px;
+	justify-content: flex-start;
+	gap: var(--tl-space-3);
+	padding: 0 12px;
+}
+
+.tlui-custom-color-picker__trigger-swatch {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 1px var(--tl-color-divider);
+}
+
+.tlui-custom-color-picker__trigger-swatch[data-custom='false'] {
+	background: conic-gradient(
+		from 0deg,
+		#ff5e5e,
+		#ffd25e,
+		#b8ff5e,
+		#5effa1,
+		#5ed0ff,
+		#8a5eff,
+		#ff5ed0,
+		#ff5e5e
+	);
+}
+
+.tlui-custom-color-picker__trigger-label {
+	font-size: 12px;
+	color: var(--tl-color-text-1);
+}
+
+.tlui-custom-color-picker {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tl-space-4);
+	padding: var(--tl-space-4);
+	width: 216px;
+}
+
+.tlui-custom-color-picker__saturation {
+	position: relative;
+	width: 100%;
+	height: 140px;
+	border-radius: var(--tl-radius-2);
+	background-image:
+		linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+	cursor: crosshair;
+	touch-action: none;
+}
+
+.tlui-custom-color-picker__hue {
+	position: relative;
+	height: 12px;
+	border-radius: 99px;
+	background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+	cursor: ew-resize;
+	touch-action: none;
+}
+
+.tlui-custom-color-picker__saturation:focus-visible,
+.tlui-custom-color-picker__hue:focus-visible {
+	outline: 2px solid var(--tl-color-selected);
+	outline-offset: 2px;
+}
+
+.tlui-custom-color-picker__thumb {
+	position: absolute;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	box-shadow:
+		0 0 0 1px rgba(0, 0, 0, 0.3),
+		inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+.tlui-custom-color-picker__hex-row {
+	display: flex;
+	align-items: center;
+	gap: var(--tl-space-3);
+}
+
+.tlui-custom-color-picker__preview {
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	border-radius: var(--tl-radius-1);
+	box-shadow: inset 0 0 0 1px var(--tl-color-divider);
+}
+
+.tlui-custom-color-picker__hex-row .tlui-input__wrapper {
+	flex: 1;
+	height: 28px;
+	padding: 0 var(--tl-space-3);
+	border-radius: var(--tl-radius-2);
+	background-color: var(--tl-color-muted-2);
+}
+
+.tlui-custom-color-picker__hex-input.tlui-input {
+	width: 100%;
+	height: 28px;
+	font-size: 12px;
+	text-transform: lowercase;
+}
+
+.tlui-custom-color-picker__recent {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tl-space-2);
+}
+
+.tlui-custom-color-picker__recent-swatch.tlui-button {
+	width: 22px;
+	min-width: 22px;
+	height: 22px;
+	padding: 2px;
+	border-radius: 50%;
+}
+
+.tlui-custom-color-picker__recent-swatch-fill {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 1px var(--tl-color-divider);
+}
+
 .tlui-toolbar-toggle-group-item,
 .tlui-style-panel__dropdown-picker > .tlui-button__icon {
 	width: 40px;

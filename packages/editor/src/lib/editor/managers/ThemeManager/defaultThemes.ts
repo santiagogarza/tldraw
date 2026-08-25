@@ -1,5 +1,6 @@
 import {
 	DefaultFontFamilies,
+	isHexColor,
 	TLDefaultColor,
 	TLDefaultColorStyle,
 	TLTheme,
@@ -613,7 +614,110 @@ export function getColorValue(
 ): string {
 	const colorEntry = colors[color as TLDefaultColorStyle]
 	if (!colorEntry || typeof colorEntry === 'string') {
+		if (typeof color === 'string' && isHexColor(color)) {
+			return getCustomColorVariants(colors, color)[variant]
+		}
 		return color
 	}
 	return colorEntry[variant]
+}
+
+type RGB = [number, number, number]
+
+/** Parse `#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`, and `hsl()` color strings. */
+function parseColor(color: string): RGB | null {
+	if (color.startsWith('#')) {
+		let hex = color.slice(1)
+		if (hex.length === 3) {
+			hex = hex
+				.split('')
+				.map((c) => c + c)
+				.join('')
+		}
+		if (hex.length < 6) return null
+		const n = parseInt(hex.slice(0, 6), 16)
+		if (Number.isNaN(n)) return null
+		return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]
+	}
+	const numbers = color.match(/-?[\d.]+/g)?.map(Number)
+	if (!numbers || numbers.length < 3) return null
+	if (color.startsWith('hsl')) {
+		return hslToRgb(numbers[0], numbers[1] / 100, numbers[2] / 100)
+	}
+	if (color.startsWith('rgb')) {
+		return [numbers[0], numbers[1], numbers[2]]
+	}
+	return null
+}
+
+function hslToRgb(h: number, s: number, l: number): RGB {
+	const c = (1 - Math.abs(2 * l - 1)) * s
+	const hp = (((h % 360) + 360) % 360) / 60
+	const x = c * (1 - Math.abs((hp % 2) - 1))
+	const m = l - c / 2
+	let rgb: RGB
+	if (hp < 1) rgb = [c, x, 0]
+	else if (hp < 2) rgb = [x, c, 0]
+	else if (hp < 3) rgb = [0, c, x]
+	else if (hp < 4) rgb = [0, x, c]
+	else if (hp < 5) rgb = [x, 0, c]
+	else rgb = [c, 0, x]
+	return rgb.map((v) => Math.round((v + m) * 255)) as RGB
+}
+
+function toHex([r, g, b]: RGB): string {
+	return '#' + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')
+}
+
+/** Mix `amount` of `toward` into `base` (0 = base, 1 = toward). */
+function mix(base: RGB, toward: RGB, amount: number): string {
+	return toHex([
+		base[0] + (toward[0] - base[0]) * amount,
+		base[1] + (toward[1] - base[1]) * amount,
+		base[2] + (toward[2] - base[2]) * amount,
+	])
+}
+
+function relativeLuminance([r, g, b]: RGB): number {
+	return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+}
+
+const customColorVariantsCache = new Map<string, TLDefaultColor>()
+
+/**
+ * Derive a full set of color variants for a custom hex color, mixing it toward
+ * the theme's background color by roughly the same ratios the built-in palette
+ * uses. Cached per hex + background pair.
+ */
+function getCustomColorVariants(colors: TLThemeColors, hexColor: string): TLDefaultColor {
+	const cacheKey = `${hexColor}|${colors.background}`
+	const cached = customColorVariantsCache.get(cacheKey)
+	if (cached) return cached
+
+	const base = parseColor(hexColor) ?? [0, 0, 0]
+	const background = parseColor(colors.background) ?? [255, 255, 255]
+	const isDark = relativeLuminance(background) < 0.5
+
+	const noteFill = mix(base, background, isDark ? 0.5 : 0.35)
+	const noteFillRgb = parseColor(noteFill) ?? base
+
+	const variants: TLDefaultColor = {
+		solid: hexColor,
+		fill: hexColor,
+		linedFill: mix(base, background, 0.15),
+		semi: mix(base, background, isDark ? 0.65 : 0.78),
+		pattern: mix(base, background, isDark ? 0.35 : 0.15),
+		frameHeadingStroke: mix(base, background, isDark ? 0.5 : 0.2),
+		frameHeadingFill: mix(base, background, isDark ? 0.88 : 0.93),
+		frameStroke: mix(base, background, isDark ? 0.5 : 0.2),
+		frameFill: mix(base, background, isDark ? 0.92 : 0.95),
+		frameText: isDark ? '#f2f2f2' : '#000000',
+		noteFill,
+		noteText: relativeLuminance(noteFillRgb) > 0.45 ? '#000000' : '#f2f2f2',
+		highlightSrgb: hexColor,
+		highlightP3: hexColor,
+	}
+
+	customColorVariantsCache.set(cacheKey, variants)
+	return variants
 }

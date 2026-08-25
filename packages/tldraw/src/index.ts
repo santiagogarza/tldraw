@@ -605,6 +605,7 @@ export {
 	StylePanelButtonPickerInline,
 	type StylePanelButtonPickerProps,
 } from './lib/ui/components/StylePanel/StylePanelButtonPicker'
+export { StylePanelCustomColorPicker } from './lib/ui/components/StylePanel/StylePanelCustomColorPicker'
 export {
 	StylePanelContextProvider,
 	useStylePanelContext,

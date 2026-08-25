@@ -1,4 +1,4 @@
-import { StyleProp } from './StyleProp'
+import { EnumStyleProp } from './StyleProp'
 import { TLDefaultColor, TLThemeDefaultColors, TLThemes } from './TLTheme'
 
 /**
@@ -34,20 +34,66 @@ const defaultColorNames: TLDefaultColorStyle[] = [
 ] as const
 
 /**
+ * Whether a string is a hex color code (`#rgb`, `#rrggbb`, or `#rrggbbaa`).
+ * Hex codes are accepted as custom color style values alongside the named
+ * theme colors.
+ *
  * @public
  */
-export const DefaultColorStyle = StyleProp.defineEnum('tldraw:color', {
-	defaultValue: 'black',
-	values: defaultColorNames,
-})
+export function isHexColor(value: string): boolean {
+	return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)
+}
+
+/**
+ * An enum style prop for colors that, in addition to its registered named
+ * values, accepts any hex color code as a custom color.
+ */
+class ColorEnumStyleProp extends EnumStyleProp<TLDefaultColorStyle> {
+	constructor(
+		id: string,
+		defaultValue: TLDefaultColorStyle,
+		values: readonly TLDefaultColorStyle[]
+	) {
+		super(id, defaultValue, values)
+	}
+
+	override validate(value: unknown): TLDefaultColorStyle {
+		if (typeof value === 'string' && isHexColor(value)) {
+			// custom hex colors are valid values but aren't part of the
+			// registered named palette, so they don't appear in `values`
+			return value as TLDefaultColorStyle
+		}
+		return super.validate(value)
+	}
+
+	override validateUsingKnownGoodVersion(
+		prevValue: TLDefaultColorStyle,
+		newValue: unknown
+	): TLDefaultColorStyle {
+		if (typeof newValue === 'string' && isHexColor(newValue)) {
+			return newValue as TLDefaultColorStyle
+		}
+		return super.validateUsingKnownGoodVersion(prevValue, newValue)
+	}
+}
 
 /**
  * @public
  */
-export const DefaultLabelColorStyle = StyleProp.defineEnum('tldraw:labelColor', {
-	defaultValue: 'black',
-	values: defaultColorNames,
-})
+export const DefaultColorStyle: EnumStyleProp<TLDefaultColorStyle> = new ColorEnumStyleProp(
+	'tldraw:color',
+	'black',
+	defaultColorNames
+)
+
+/**
+ * @public
+ */
+export const DefaultLabelColorStyle: EnumStyleProp<TLDefaultColorStyle> = new ColorEnumStyleProp(
+	'tldraw:labelColor',
+	'black',
+	defaultColorNames
+)
 
 /**
  * Scan theme definitions and sync color registrations to match.
