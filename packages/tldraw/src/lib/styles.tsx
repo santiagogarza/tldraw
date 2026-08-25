@@ -37,6 +37,8 @@ export function getColorStyleItems(colors: TLThemeColors): StyleValuesForUi<stri
 		if (name in colors && isPaletteColor(colors[name as keyof typeof colors])) {
 			// we remove white here temporarily, it's an easter egg color that the panel does not yet account for
 			if (name === 'white') continue
+			// custom palette colors are shown in a separate section of the style panel
+			if (name.startsWith('custom-')) continue
 			result.push({ value: name, icon: 'color' as const })
 			seen.add(name)
 		}
@@ -44,7 +46,7 @@ export function getColorStyleItems(colors: TLThemeColors): StyleValuesForUi<stri
 
 	// Then, append any remaining palette colors from the theme
 	for (const [key, value] of Object.entries(colors)) {
-		if (!seen.has(key) && key !== 'white' && isPaletteColor(value)) {
+		if (!seen.has(key) && key !== 'white' && !key.startsWith('custom-') && isPaletteColor(value)) {
 			result.push({ value: key, icon: 'color' as const })
 		}
 	}

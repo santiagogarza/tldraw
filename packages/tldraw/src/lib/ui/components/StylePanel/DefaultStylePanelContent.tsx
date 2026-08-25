@@ -11,6 +11,7 @@ import {
 	DefaultTextAlignStyle,
 	DefaultVerticalAlignStyle,
 	GeoShapeGeoStyle,
+	getColorValue,
 	kickoutOccludedShapes,
 	LineShapeSplineStyle,
 	minBy,
@@ -23,11 +24,21 @@ import { GeoShapeUtil } from '../../../shapes/geo/GeoShapeUtil'
 import { defaultGeoTypeDefinitions, GeoTypeDefinition } from '../../../shapes/geo/getGeoShapePath'
 import { getColorStyleItems, getFontStyleItems, STYLES } from '../../../styles'
 import { useTranslation } from '../../hooks/useTranslation/useTranslation'
+import { TldrawUiButton } from '../primitives/Button/TldrawUiButton'
 import { TldrawUiButtonIcon } from '../primitives/Button/TldrawUiButtonIcon'
+import { TldrawUiButtonLabel } from '../primitives/Button/TldrawUiButtonLabel'
 import { TldrawUiSlider } from '../primitives/TldrawUiSlider'
 import { TldrawUiToolbar, TldrawUiToolbarButton } from '../primitives/TldrawUiToolbar'
+import { TldrawUiTooltip } from '../primitives/TldrawUiTooltip'
+import {
+	customColorPaletteAtom,
+	getVisibleCustomColors,
+	MAX_VISIBLE_CUSTOM_COLORS,
+} from './customColorPalette'
 import { StylePanelButtonPicker, StylePanelButtonPickerInline } from './StylePanelButtonPicker'
 import { useStylePanelContext } from './StylePanelContext'
+import { StylePanelCustomColorPicker } from './StylePanelCustomColorPicker'
+import { StylePanelCustomColorSwatches } from './StylePanelCustomColorSwatches'
 import { StylePanelDoubleDropdownPicker } from './StylePanelDoubleDropdownPicker'
 import {
 	StylePanelDropdownPicker,
@@ -35,12 +46,26 @@ import {
 } from './StylePanelDropdownPicker'
 import { StylePanelSubheading } from './StylePanelSubheading'
 
+type StylePanelView = 'styles' | 'custom-color'
+
 /** @public @react */
 export function DefaultStylePanelContent() {
+	const [view, setView] = React.useState<StylePanelView>('styles')
+
+	if (view === 'custom-color') {
+		return (
+			<StylePanelSection>
+				<StylePanelCustomColorPickerContent onClose={() => setView('styles')} />
+			</StylePanelSection>
+		)
+	}
+
 	return (
 		<>
 			<StylePanelSection>
 				<StylePanelColorPicker />
+				<StylePanelCustomColorSwatches />
+				<StylePanelChooseColorButton onOpenPicker={() => setView('custom-color')} />
 				<StylePanelOpacityPicker />
 			</StylePanelSection>
 			<StylePanelSection>
@@ -61,6 +86,63 @@ export function DefaultStylePanelContent() {
 			</StylePanelSection>
 		</>
 	)
+}
+
+function StylePanelCustomColorPickerContent({ onClose }: { onClose(): void }) {
+	const editor = useEditor()
+	const { styles } = useStylePanelContext()
+	const color = styles.get(DefaultColorStyle)
+
+	const initialHex = useValue(
+		'custom color picker initial hex',
+		() => {
+			const colors = editor.getCurrentTheme().colors[editor.getColorMode()]
+			if (color?.type === 'shared') {
+				return getColorValue(colors, color.value, 'solid')
+			}
+			return '#000000'
+		},
+		[editor, color]
+	)
+
+	return <StylePanelCustomColorPicker onClose={onClose} initialHex={initialHex} />
+}
+
+/** @internal @react */
+export function StylePanelChooseColorButton({ onOpenPicker }: { onOpenPicker(): void }) {
+	const { styles } = useStylePanelContext()
+	const msg = useTranslation()
+	const color = styles.get(DefaultColorStyle)
+	const paletteState = useValue(customColorPaletteAtom)
+	const visibleCount = getVisibleCustomColors(paletteState).length
+	const isFull = visibleCount >= MAX_VISIBLE_CUSTOM_COLORS
+	const tooltip = msg('style-panel.custom-color-max')
+
+	if (color === undefined) return null
+
+	const button = (
+		<TldrawUiButton
+			type="menu"
+			className="tlui-style-panel__choose-color-button"
+			data-testid="style.choose-color"
+			disabled={isFull}
+			onClick={onOpenPicker}
+		>
+			<TldrawUiButtonLabel>{msg('style-panel.choose-color')}</TldrawUiButtonLabel>
+		</TldrawUiButton>
+	)
+
+	if (isFull) {
+		return (
+			<div className="tlui-style-panel__choose-color-button-wrapper">
+				<TldrawUiTooltip content={tooltip}>
+					<span className="tlui-style-panel__choose-color-button-tooltip-target">{button}</span>
+				</TldrawUiTooltip>
+			</div>
+		)
+	}
+
+	return <div className="tlui-style-panel__choose-color-button-wrapper">{button}</div>
 }
 
 /** @public */

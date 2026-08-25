@@ -1209,6 +1209,114 @@ tldraw? probably.
 	padding-top: 0px;
 }
 
+.tlui-style-panel__choose-color-button-wrapper {
+	padding: var(--tl-space-2) var(--tl-space-3);
+}
+
+.tlui-style-panel__choose-color-button {
+	width: 100%;
+}
+
+.tlui-style-panel__choose-color-button .tlui-button__label {
+	flex-grow: 0;
+	text-align: center;
+}
+
+.tlui-style-panel__choose-color-button-tooltip-target {
+	display: block;
+	width: 100%;
+}
+
+.tlui-style-panel__choose-color-button:disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.tlui-style-panel__choose-color-button-tooltip-target
+	.tlui-style-panel__choose-color-button:disabled {
+	pointer-events: none;
+}
+
+.tlui-style-panel__choose-color-button-tooltip-target {
+	pointer-events: all;
+}
+
+.tlui-style-panel__custom-color-picker {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tl-space-2);
+	padding-bottom: var(--tl-space-2);
+}
+
+.tlui-style-panel__custom-color-picker__sv {
+	position: relative;
+	height: 100px;
+	margin: 0 var(--tl-space-3);
+	border-radius: var(--tl-radius-2);
+	overflow: hidden;
+	cursor: crosshair;
+	touch-action: none;
+}
+
+.tlui-style-panel__custom-color-picker__sv-white {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to right, #fff, transparent);
+}
+
+.tlui-style-panel__custom-color-picker__sv-black {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to top, #000, transparent);
+}
+
+.tlui-style-panel__custom-color-picker__sv-thumb {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	margin: -6px 0 0 -6px;
+	border: 2px solid var(--tl-color-background);
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+	pointer-events: none;
+}
+
+.tlui-style-panel__custom-color-picker .tlui-slider__container {
+	padding: 0 var(--tl-space-3);
+}
+
+.tlui-style-panel__custom-color-picker__hex-row {
+	display: flex;
+	align-items: center;
+	gap: var(--tl-space-2);
+	padding: 0 var(--tl-space-3);
+}
+
+.tlui-style-panel__custom-color-picker__preview {
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	border-radius: var(--tl-radius-2);
+	border: 1px solid var(--tl-color-divider);
+}
+
+.tlui-style-panel__custom-color-picker__hex-input {
+	flex: 1;
+	min-width: 0;
+}
+
+.tlui-style-panel__custom-color-picker__actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tl-space-2);
+	padding: 0 var(--tl-space-3);
+}
+
+.tlui-style-panel__custom-color-picker__add,
+.tlui-style-panel__custom-color-picker__cancel {
+	width: 100%;
+}
+
 /* --------------------- Bottom --------------------- */
 
 .tlui-layout__bottom {
